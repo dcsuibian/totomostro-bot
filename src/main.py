@@ -149,8 +149,8 @@ class TotomostroBot:
     def handle_watching(self, image):
         """观战中 - 检测应援机会"""
         if self.recognizer.detect_cheer_prompt(image):
-            logger.debug('[观战] 检测到应援提示，按圈!')
-            for _ in range(15):  # 连按15下
+            logger.info('[观战] 检测到应援提示，按圈!')
+            for _ in range(12):  # 连按12下
                 self.controller.circle()
         time.sleep(0.5)  # 缩短检测间隔
 
@@ -159,12 +159,13 @@ class TotomostroBot:
         result = self.recognizer.recognize_result(image)
 
         # 记录到数据库
-        self.repo.add_match(
-            choice=self.current_selection.name if self.current_selection else 'unknown',
-            teams=[(t.name, t.odds) for t in self.current_teams],
-            result=result if result in ('win', 'lose', 'draw') else None,
-            bet_amount=self.current_bet_amount,
-        )
+        if self.current_selection:
+            self.repo.add_match(
+                choice=self.current_selection.name if self.current_selection else 'unknown',
+                teams=[(t.name, t.odds) for t in self.current_teams],
+                result=result if result in ('win', 'lose', 'draw') else None,
+                bet_amount=self.current_bet_amount,
+            )
 
         # 每10场训练一次模型
         total = self.repo.total_rounds()
