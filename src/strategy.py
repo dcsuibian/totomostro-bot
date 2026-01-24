@@ -32,6 +32,7 @@ class MlStrategy:
         self._monster_strength: dict[str, float] = {}
 
         self._load_model()
+        self.current_win_prob: float = 0.5
 
     # ========== 模型持久化 ==========
 
@@ -189,7 +190,9 @@ class MlStrategy:
 
         # 数据不足时用启发式策略
         if not self.is_trained or self.repo.total_rounds() < 20:
-            return self._select_by_heuristic(teams)
+            selected, prob = self._select_by_heuristic(teams)
+            self.current_win_prob = prob
+            return selected
 
         n_monsters = len(self.label_encoder.classes_)
         team_names = [t.name for t in teams]
@@ -211,10 +214,12 @@ class MlStrategy:
                 best_prob = prob
                 best_team = team
 
+        self.current_win_prob = best_prob
+
         logger.info(f'[策略] 选择 {best_team.name} (预测胜率 {best_prob:.1%})')
         return best_team
 
-    def _select_by_heuristic(self, teams: list[RecognizedTeam]) -> RecognizedTeam:
+    def _select_by_heuristic(self, teams: list[RecognizedTeam]) -> tuple[RecognizedTeam, float]:
         """
         启发式选队（数据不足时使用）
         优先选历史胜率高的，没有历史数据则选第一个
@@ -235,8 +240,12 @@ class MlStrategy:
                 best_score = score
                 best_team = team
 
-        logger.info(f'[策略-启发式] 选择 {best_team.name}')
-        return best_team
+        # 计算预估胜率
+        base_prob = 1.0 / len(teams)
+        adjusted_prob = min(base_prob * (1 + best_score), 0.9)
+
+        logger.info(f'[策略-启发式] 选择 {best_team.name} (预估胜率 {adjusted_prob:.1%})')
+        return best_team, adjusted_prob
 
     def _get_fallback_prob(self, name: str) -> float:
         """获取未知怪物的预测概率"""
@@ -250,40 +259,34 @@ class MlStrategy:
     def calculate_bet_amount(self) -> int:
         """
         动态计算下注金额
-        根据总场次和胜率调整
+        根据场次和胜率调整
         """
         total = self.repo.total_rounds()
-        win_rate = self.repo.win_rate()
+        prob = self.current_win_prob
 
-        # 阶段1: 前20场，学习期
-        if total < 20:
+        if total < 30:
             return 1
 
-        # 阶段2: 20-50场，小额测试
-        if total < 50:
-            if win_rate >= 0.55:
-                return 10
-            return 1
-
-        # 阶段3: 50-100场
         if total < 100:
-            if win_rate >= 0.60:
-                return 100
-            if win_rate >= 0.55:
+            if prob >= 0.6:
                 return 50
-            if win_rate >= 0.50:
+            elif prob >= 0.5:
                 return 10
+            elif prob >= 0.4:
+                return 5
             return 1
 
-        # 阶段4: 100场以上，看近100场胜率
-        recent_wr = self.repo.win_rate(100)
-
-        if recent_wr >= 0.65:
+        # 100场以上，根据预测胜率下注
+        if prob >= 0.7:
             return 9999
-        if recent_wr >= 0.60:
+        elif prob >= 0.6:
             return 1000
-        if recent_wr >= 0.55:
+        elif prob >= 0.55:
             return 500
-        if recent_wr >= 0.50:
+        elif prob >= 0.5:
             return 100
-        return 10
+        elif prob >= 0.4:
+            return 50
+        elif prob >= 0.3:
+            return 10
+        return 1

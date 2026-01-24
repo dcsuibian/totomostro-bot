@@ -113,11 +113,12 @@ class TotomostroBot:
     def handle_input_amount(self, image):
         """输入金额"""
         self.current_bet_amount = self.strategy.calculate_bet_amount()
-        logger.info(f'[下注] 金额: {self.current_bet_amount} (当前胜率:{self.repo.win_rate():.1%})')
+        prob = self.strategy.current_win_prob
+        logger.info(f'[下注] 金额: {self.current_bet_amount} (预测胜率:{prob:.1%})')
 
         self._input_amount(self.current_bet_amount)
         self.controller.confirm()
-        time.sleep(1.5)
+        time.sleep(0.5)
 
     def _input_amount(self, amount: int):
         """输入指定金额"""
