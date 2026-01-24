@@ -149,7 +149,7 @@ class TotomostroBot:
     def handle_watching(self, image):
         """观战中 - 检测应援机会"""
         if self.recognizer.detect_cheer_prompt(image):
-            logger.info('[观战] 检测到应援提示，按圈!')
+            logger.debug('[观战] 检测到应援提示，按圈!')
             for _ in range(12):  # 连按12下
                 self.controller.circle()
         time.sleep(0.5)  # 缩短检测间隔
