@@ -31,3 +31,6 @@ htmlcov/
 
 # 保留空目录
 !.gitkeep
+
+# 输出目录
+output/

@@ -8,5 +8,7 @@ dependencies = [
     "numpy==2.2.6",
     "mss==10.1.0",
     "pywin32==311",
-    "PyAutoGUI==0.9.54",
+    "vgamepad==0.1.0",
+    "easyocr==1.7.2",
+    "scikit-learn==1.8.0",
 ]
