@@ -124,7 +124,7 @@ class GameRecognizer:
         red_ratio = np.sum(mask > 0) / mask.size
 
         # 红色占比超过阈值认为有圆圈
-        return red_ratio > 0.05
+        return red_ratio > 0.02
 
     # ========== 状态检测 ==========
 

@@ -152,7 +152,7 @@ class TotomostroBot:
             logger.debug('[观战] 检测到应援提示，按圈!')
             for _ in range(12):  # 连按12下
                 self.controller.circle()
-        time.sleep(0.5)  # 缩短检测间隔
+        time.sleep(0.5)
 
     def handle_result(self, image):
         """结果界面"""
