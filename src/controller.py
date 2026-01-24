@@ -21,8 +21,8 @@ class GamepadController:
         :param confirm_button: FF15游戏中的确认键，'circle' 或 'cross'。注意是游戏中而不是PS系统的。
         """
         self.gamepad = vg.VDS4Gamepad()
-        self.press_duration = 0.1
-        self.press_interval = 0.15
+        self.press_duration = 0.05
+        self.press_interval = 0.1
         self.confirm_button = confirm_button
         self.cancel_button = 'cross' if confirm_button == 'circle' else 'circle'
 

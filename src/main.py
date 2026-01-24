@@ -122,6 +122,7 @@ class TotomostroBot:
     def _input_amount(self, amount: int):
         """输入指定金额"""
         digits = [int(d) for d in f'{amount:04d}']
+        current = 0
         for i in range(3, -1, -1):
             digit = digits[i]
             if digit > 5:
@@ -132,6 +133,9 @@ class TotomostroBot:
                 for _ in range(digit):
                     self.controller.up()
                     time.sleep(0.1)
+            current += digit
+            if current >= amount:
+                break
             if i > 0:
                 self.controller.left()
                 time.sleep(0.1)
@@ -143,8 +147,12 @@ class TotomostroBot:
         time.sleep(0.5)
 
     def handle_watching(self, image):
-        """观战中"""
-        time.sleep(1)
+        """观战中 - 检测应援机会"""
+        if self.recognizer.detect_cheer_prompt(image):
+            logger.debug('[观战] 检测到应援提示，按圈!')
+            for _ in range(15):  # 连按15下
+                self.controller.circle()
+        time.sleep(0.5)  # 缩短检测间隔
 
     def handle_result(self, image):
         """结果界面"""
