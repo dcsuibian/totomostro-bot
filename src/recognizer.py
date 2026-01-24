@@ -95,6 +95,8 @@ class GameRecognizer:
 
             odds = self._parse_odds(text)
             name = re.sub(r'[\d.]+', '', text).strip()
+            if name.endswith(','):
+                name = name[:-1].strip()
 
             if name and odds is not None:
                 teams.append(RecognizedTeam(name=name, odds=odds, index=i))
