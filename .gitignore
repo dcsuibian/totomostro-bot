@@ -1,0 +1,36 @@
+# 系统
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/*
+
+# 测试
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 环境
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 日志
+*.log
+
+# 保留空目录
+!.gitkeep
+
+# 输出目录
+output/
